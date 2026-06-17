@@ -23,4 +23,5 @@ class Config {
     ];
 
     static puyoColorMax = 5;
+    static fallingSpeed = 6;
 }
