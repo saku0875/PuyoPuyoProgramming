@@ -5,6 +5,9 @@ window.addEventListener("load", () => {
 });
 
 function initialize() {
+    // 画像を準備する
+    GameImage.initialize();
+
     // ステージを準備する
     Stage.initialize();
 }
