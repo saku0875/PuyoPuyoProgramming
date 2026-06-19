@@ -52,7 +52,12 @@ function gameLoop() {
             if (eraseInfo) {
                 gameState = 'erasingPuyo';
                 comboCount++;
+                Stage.hideZenkeshi();
             } else {
+                if (Stage.puyoCount === 0 && comboCount > 0) {
+                    // 全部消えたので、全消しを表示する
+                    Stage.showZenkeshi();
+                }
                 comboCount = 0;
                 gameState = '';
             }
