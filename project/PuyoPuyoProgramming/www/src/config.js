@@ -24,4 +24,6 @@ class Config {
 
     static puyoColorMax = 5;
     static fallingSpeed = 6;
+    static erasePuyoCount = 4;
+    static eraseAnimationFrames = 30;
 }

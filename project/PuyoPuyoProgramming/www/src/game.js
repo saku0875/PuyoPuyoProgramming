@@ -10,6 +10,8 @@ window.addEventListener("load", () => {
 let gameState; // ゲームの現在の状況
 let frame; // ゲームの現在フレーム
 
+let comboCount = 0;
+
 function initialize() {
     // 画像を準備する
     GameImage.initialize();
@@ -35,16 +37,34 @@ function gameLoop() {
             if (Stage.checkFallingPuyo()) {
                 gameState = 'fallingPuyo';
             } else {
-                gameState = '';
+                gameState = 'checkPuyoErase';
             }
             break;
         case 'fallingPuyo':
             // ぷよが自由落下しているアニメーション状態
             if (!Stage.fallPuyo()) {
+                gameState = 'checkPuyoErase';
+            }
+            break;
+        case 'checkPuyoErase':
+            // 消せるかどうか判定する状態
+            const eraseInfo = Stage.checkPuyoErase(frame);
+            if (eraseInfo) {
+                gameState = 'erasingPuyo';
+                comboCount++;
+            } else {
+                comboCount = 0;
                 gameState = '';
+            }
+            break;
+        case 'erasingPuyo':
+            // ぷよが消えているアニメーション状態
+            if (!Stage.erasePuyo(frame)) {
+                // 消し終わったら、再度落ちるかどうか判定する
+                gameState = 'checkFallingPuyo';
             }
             break;
     }
     frame++;
-    setTimeout(gameLoop, 1000 / 60);
+    setTimeout(gameLoop, 1000 / 60); // 1/60秒後にもう一度呼び出す
 }

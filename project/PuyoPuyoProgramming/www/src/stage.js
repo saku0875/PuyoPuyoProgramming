@@ -3,6 +3,8 @@ class Stage {
     static puyoBoard = null;
     static puyoCount = 0;
     static fallingPuyoInfoList = [];
+    static erasingStartFrame = 0;
+    static erasingInfoList = [];
 
     static initialize() {
         // HTMLからステージの元となる要素を取得し、大きさを設定する
@@ -145,5 +147,123 @@ class Stage {
                     fallingPuyoInfo.element.style.top = position + "px";
                  }
                  return isFalling;
+        }
+
+        // 消せるかどうか判定する
+        static checkPuyoErase(startFrame) {
+            Stage.eraseStartFrame = startFrame;
+            Stage.erasingInfoList = [];
+
+            // 何色のぷよを消したかを記録する
+            const erasedPuyoColorBin = {};
+
+            // 隣接ぷよを確認する関数内関数を作成
+            const checkConnectedPuyo = (x, y, connectedInfoList = []) => {
+                // ぷよがあるか確認する
+                const originalPuyoInfo = Stage.getPuyoInfo(x, y);
+                if (!originalPuyoInfo) {
+                    // ないなら何もしない
+                    return connectedInfoList;
+                }
+                // あるならいったん、ぷよぷよ盤の上から一時的に消す
+                connectedInfoList.push({
+                    x: x,
+                    y: y,
+                    puyoInfo: originalPuyoInfo
+                });
+                Stage.removePuyoInfo(x, y);
+
+                // 4方向（上下左右）の周囲ぷよを確認する
+                const directionList = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+                for (const direction of directionList) {
+                    const dx = x + direction[0];
+                    const dy = y + direction[1];
+                    const puyoInfo = Stage.getPuyoInfo(dx, dy);
+                    if (!puyoInfo || puyoInfo.puyoColor !== originalPuyoInfo.puyoColor) {
+                        // ぷよの色が違う
+                        continue;
+                    }
+                    //自分と同じ色のぷよだったら、そのぷよのまわりのぷよも消せるか確認する
+                    checkConnectedPuyo(dx, dy, connectedInfoList);
+                }
+                return connectedInfoList;
+            };
+
+            const remainingInfoList = [];
+            // ひとつひとつぷよを確認し、そのぷよが消せるかどうか判断していく
+            for (let y = 0; y < Config.stageRows; y++) {
+                for (let x = 0; x < Config.stageCols; x++) {
+                    const puyoInfo = Stage.getPuyoInfo(x, y);
+                    const connectedInfoList = checkConnectedPuyo(x, y);
+                    if (connectedInfoList.length < Config.erasePuyoCount) {
+                        // 連続していないか、連続していても数が足りなかったので消さない
+                        if (connectedInfoList.length) {
+                            // 退避していたぷよを消さないで戻すリストに追加する
+                            remainingInfoList.push(...connectedInfoList);
+                            }
+                        } else {
+                            if(connectedInfoList.length) {
+                                // 消せるぷよだったので、消すリストに追加する
+                            Stage.erasingInfoList.push(...connectedInfoList);
+                            erasedPuyoColorBin[puyoInfo.puyoColor] = true;
+                            }
+                    }
+                }
+            }
+
+            // 全体のぷよぷよ個数から、今回消した個数を引いておく
+            Stage.puyoCount -= Stage.erasingInfoList.length;
+
+            // 消さないで戻すリストに入っていたぷよをメモリに復帰させる
+            for (const info of remainingInfoList) {
+                Stage.setPuyoInfo(info.x, info.y, info.puyoInfo);
+            }
+
+            if (Stage.erasingInfoList.length) {
+                // もし消せるならば、消えるぷよの個数と色の情報をまとめて渡す
+                return {
+                    piece: Stage.erasingInfoList.length,
+                    color: Object.keys(erasedPuyoColorBin).length
+                };
+            }
+            return null;
+        }
+
+        // 消すアニメーションをする
+        static erasePuyo(frame) {
+            const elapsedFrame = frame - Stage.eraseStartFrame;
+            const ratio = elapsedFrame / Config.eraseAnimationFrames;
+            if (ratio >= 1) {
+                // アニメーションを終了する
+                for (const info of Stage.erasingInfoList) {
+                    var element = info.puyoInfo.element;
+                    Stage.stageElement.removeChild(element);
+                }
+                return false;
+            } else if (ratio >= 0.75) {
+                for (const info of Stage.erasingInfoList) {
+                    var element = info.puyoInfo.element;
+                    element.style.display = 'block';
+                }
+                return true;
+            } else if (ratio >= 0.50) {
+                for (const info of Stage.erasingInfoList) {
+                    var element = info.puyoInfo.element;
+                    element.style.display = 'none';
+                }
+                return false;
+            } else if (ratio >= 0.25) {
+                for (const info of Stage.erasingInfoList) {
+                    var element = info.puyoInfo.element;
+                    element.style.display = 'block';
+                }
+                return true;
+            } else {
+                for (const info of Stage.erasingInfoList) {
+                    var element = info.puyoInfo.element;
+                    element.style.display = 'none';
+                }
+                return true;
+            }
         }
 }
