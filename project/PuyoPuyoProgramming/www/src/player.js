@@ -76,9 +76,10 @@ class Player {
             return false;
         }
 
-        // 新しいぷよの色を決める
-        Player.centerPuyoColor = Math.trunc(Math.random() * Config.puyoColorMax) + 1;
-        Player.rotatingPuyoColor = Math.trunc(Math.random() * Config.puyoColorMax) + 1;
+        // 新しいぷよの色をネクストぷよから取得する
+        const nextPuyoColors = Stage.getNextPuyoColors();
+        Player.centerPuyoColor = nextPuyoColors[0];
+        Player.rotatingPuyoColor = nextPuyoColors[1];
 
         // 新しいぷよ画像を作成する
         Player.centerPuyoElement = GameImage.getPuyoImage(Player.centerPuyoColor);
