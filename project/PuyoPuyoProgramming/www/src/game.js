@@ -9,7 +9,6 @@ window.addEventListener("load", () => {
 
 let gameState; // ゲームの現在の状況
 let frame; // ゲームの現在フレーム
-
 let comboCount = 0;
 
 function initialize() {
@@ -24,7 +23,6 @@ function initialize() {
     // フレームを初期化する
     frame = 0;
 }
-
 function gameLoop() {
     switch (gameState) {
         case 'start':
@@ -59,7 +57,7 @@ function gameLoop() {
                     Stage.showZenkeshi();
                 }
                 comboCount = 0;
-                gameState = '';
+                gameState = 'createPlayerPuyo';
             }
             break;
         case 'erasingPuyo':
@@ -69,6 +67,27 @@ function gameLoop() {
                 gameState = 'checkFallingPuyo';
             }
             break;
+            case 'createPlayerPuyo':
+                // 新しくプレイヤーの操作ぷよを作成する状態
+                if (!Player.createPlayerPuyo()) {
+                    // 新しい操作用ぷよを作成する。作成できなかったら、ゲームオーバー
+                    gameState = 'gameOver';
+                } else {
+                    // プレイヤーが操作する
+                    gameState = 'playing';
+                }
+                break;
+            case 'playing':
+                // プレイヤーが操作する状態
+                const nextAction = Player.update();
+                gameState = nextAction; // 'playing' 'fix' のどれかが返ってくる
+                break;
+            case 'fix':
+                // 現在の位置でぷよを固定する状態
+                Player.fixPlayerPuyo();
+                // 固定が完了したら、自由落下できるぷよがあるかどうかを確認する
+                gameState = 'checkFallingPuyo';
+                break;
     }
     frame++;
     setTimeout(gameLoop, 1000 / 60); // 1/60秒後にもう一度呼び出す

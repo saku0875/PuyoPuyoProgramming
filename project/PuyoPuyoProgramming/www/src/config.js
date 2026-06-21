@@ -8,7 +8,6 @@ class Config {
 
     // 初期状態のステージ
     static initialBoard = [
-        [0, 0, 0, 0, 4, 5],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
@@ -16,10 +15,11 @@ class Config {
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0],
-        [0, 1, 2, 3, 0, 0],
-        [1, 2, 3, 4, 5, 0],
-        [1, 2, 3, 4, 5, 0],
-        [1, 2, 3, 4, 5, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0, 0],
     ];
 
     static puyoColorMax = 5;
@@ -27,4 +27,6 @@ class Config {
     static erasePuyoCount = 4;
     static eraseAnimationFrames = 30;
     static zenkeshiDuration = 150;
+    static playerFallingSpeed = 0.9;
+    static playerLockDelayFrames = 20;
 }
