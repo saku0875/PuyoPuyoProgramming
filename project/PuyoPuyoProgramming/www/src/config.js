@@ -30,4 +30,5 @@ class Config {
     static playerFallingSpeed = 0.9;
     static playerLockDelayFrames = 20;
     static playerDownSpeed = 10;
+    static playerMoveFrames = 10; //左右移動に消費するフレーム数
 }
