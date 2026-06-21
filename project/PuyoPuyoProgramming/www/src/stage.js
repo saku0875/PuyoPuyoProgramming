@@ -282,13 +282,13 @@ class Stage {
             Stage.zenkeshiImage.style.top = Config.puyoImageHeight * Config.stageRows + "px";
             Stage.zenkeshiImage.offsetHeight;
 
-            Stage.zenkeshiImage.style.transition = "top" + Config.zenkeshiDuration + "ms linear";
+            Stage.zenkeshiImage.style.transition = "top " + Config.zenkeshiDuration + "ms linear";
             Stage.zenkeshiImage.style.top = Config.puyoImageHeight * Config.stageRows / 3 + "px";
         }
 
         // 全消しの画像を画面上から消す
         static hideZenkeshi() {
-            Stage.zenkeshiImage.style.transition = "opacity" + Config.zenkeshiDuration + "ms linear";
+            Stage.zenkeshiImage.style.transition = "opacity " + Config.zenkeshiDuration + "ms linear";
             Stage.zenkeshiImage.style.opacity = '0';
         }
 }
