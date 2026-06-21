@@ -5,6 +5,7 @@ class Config {
     static stageCols = 6; // ステージの横の個数
     static stageRows = 12; // ステージの縦の個数
     static stageBackgroundColor = '#11213b'; // ステージの背景色
+    static nextBackgroundColor = '#1176f173';
 
     // 初期状態のステージ
     static initialBoard = [
