@@ -9,6 +9,9 @@ class Player {
     static actionStartFrame = 0;
     static moveSource = 0;
     static moveDestination = 0;
+    static rotateBeforeLeft = 0;
+    static rotateAfterLeft = 0;
+    static rotateFromRotation = 0;
 
     static initialize() {
         // キーボードの入力を確認する
@@ -27,7 +30,7 @@ class Player {
                     event.preventDefault();
                     return;
                 case "ArrowUp":
-                    Player.keyStatus.right = true;
+                    Player.keyStatus.up = true;
                     event.preventDefault();
                     return;
                 case "ArrowRight":
@@ -49,7 +52,7 @@ class Player {
                     event.preventDefault();
                     return;
                 case "ArrowUp":
-                    Player.keyStatus.right = false;
+                    Player.keyStatus.up = false;
                     event.preventDefault();
                     return;
                 case "ArrowRight":
@@ -220,6 +223,80 @@ class Player {
                 Player.playerPuyoStatus.x += mx;
                 return 'moving';
             }
+        } else if (Player.keyStatus.up){
+            // 回転を確認する
+            // 本当に回せるかどうかは後で確認して、とりあえず仮想的に回してみる
+            const x = Player.playerPuyoStatus.x;
+            // プレイヤー操作ぷよが接地しておらず落下している場合は、現在の座標よりも1つ下の座標を基準にする
+            const y = Player.playerPuyoStatus.y + (Player.groundedFrame === 0 ? 1 : 0);
+            const rotation = Player.playerPuyoStatus.rotation;
+            let canRotate = true;
+
+            let cx = 0;
+            let cy = 0;
+            if (rotation === 0) {
+                // 右から上には、確実に回せる。何もしない
+            } else if (rotation === 90) {
+                // 上から左に回すときに、左にぷよがあれば右に移動する必要がある
+                // まず左側を確認する
+                if (Stage.getPuyoInfo(x - 1, y)) {
+                    // 左側にぷよがある。右に1個ずれる必要がある
+                    cx = 1;
+                    // ずれる必要があるときに、右側にぷよがあれば、その時は回転できない
+                    if (Stage.getPuyoInfo(x + 1, y)) {
+                        canRotate = false;
+                    }
+                }
+            } else if (rotation === 180) {
+                // 左から下に回すときには、自分の下か左下にぷよがあれば1個下に引き上げる
+                // まず下を確認する
+                if (Stage.getPuyoInfo(x, y + 1)) {
+                    // 左側にぷよがあるので引き上げる
+                    cy = -1;
+                }
+                // 左下も確認する
+                if (Stage.getPuyoInfo(x - 1, y + 1)) {
+                    // 左下にぷよがあるので引き上げる
+                    cy = -1;
+                }
+            } else if (rotation === 270) {
+                // 下から右に回すときは、右にぷよがあれば左に移動する必要がある
+                // まず右側を確認する
+                if (Stage.getPuyoInfo(x + 1, y)) {
+                    // 右側にぷよがあるので、左に1個ずれる必要がある
+                    cx = -1;
+                    // ずれる必要があるときに、左側にもぷよがあれば、そのときは回転できない
+                    if (Stage.getPuyoInfo(x - 1,y)) {
+                        // ぷよがあるので回転できなかった
+                        canRotate = false;
+                    }
+                }
+            }
+
+            if (canRotate) {
+                // 上に移動する必要があるときは、アニメーションせずに一気にあげてしまう
+                if (cy === -1) {
+                    if (Player.groundedFrame > 0) {
+                        // 接地しているなら1段引き上げる
+                        Player.playerPuyoStatus.y -= 1;
+                        Player.groundedFrame = 0;
+                    }
+                    Player.playerPuyoStatus.top = Player.playerPuyoStatus.y * Config.puyoImageHeight;
+                }
+                // 回すことができるので、回転後の情報をセットして回転状態にする
+                Player.actionStartFrame = frame;
+                Player.rotateBeforeLeft = x * Config.puyoImageHeight;
+                Player.rotateAfterLeft = (x + cx) * Config.puyoImageHeight;
+                Player.rotateFromRotation = Player.playerPuyoStatus.rotation;
+                // 次の状態を先に設定しておく
+                Player.playerPuyoStatus.x += cx;
+                const nextRotation = (Player.playerPuyoStatus.rotation + 90) % 360;
+                const dCombi = [[1, 0], [0, -1], [-1, 0], [0, 1]][nextRotation / 90];
+                Player.playerPuyoStatus.dx = dCombi[0];
+                Player.playerPuyoStatus.dy = dCombi[1];
+                Player.playerPuyoStatus.rotation = nextRotation;
+                return 'rotating';
+            }
         }
         return "playing";
     }
@@ -236,6 +313,28 @@ class Player {
         }
         Player.playerPuyoStatus.left = (Player.moveDestination - Player.moveSource) * ratio + Player.moveSource;
         // ぷよの表示位置を変化させる
+        Player.setPlayerPuyoPosition();
+
+        if (ratio === 1) {
+            // アニメーションが終了していたらtrue
+            return true;
+        }
+        return false;
+    }
+
+    // ぷよを回転させる
+    static rotatePlayerPuyo(frame) {
+        // 回転中も自然落下はさせる
+        Player.dropPlayerPuyo(false);
+
+        // 移動・回転割合を計算する
+        let ratio = (frame - Player.actionStartFrame) / Config.playerRotateFrames;
+        if (ratio > 1) {
+            // 1を超えた場合は1にする
+            ratio = 1;
+        }
+        Player.playerPuyoStatus.left = (Player.rotateAfterLeft - Player.rotateBeforeLeft) * ratio + Player.rotateBeforeLeft;
+        // ぷよ表示位置を変化させる
         Player.setPlayerPuyoPosition();
 
         if (ratio === 1) {

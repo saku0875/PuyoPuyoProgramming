@@ -83,7 +83,7 @@ function gameLoop() {
             case 'playing':
                 // プレイヤーが操作する状態
                 const nextAction = Player.update(frame);
-                gameState = nextAction; // 'playing' 'fix' 'moving' のどれかが返ってくる
+                gameState = nextAction; // 'playing' 'fix' 'moving' 'rotating' のどれかが返ってくる
                 break;
             case 'fix':
                 // 現在の位置でぷよを固定する状態
@@ -95,6 +95,12 @@ function gameLoop() {
                 // プレイヤーの操作ぷよが左右に移動するアニメーション状態
                 if (Player.movePlayerPuyo(frame)) {
                     // 移動が終ったので操作可能にする
+                    gameState = 'playing';
+                }
+                break;
+            case 'rotating':
+                if (Player.rotatePlayerPuyo(frame)) {
+                    // 回転が終わったので操作可能にする
                     gameState = 'playing';
                 }
                 break;
