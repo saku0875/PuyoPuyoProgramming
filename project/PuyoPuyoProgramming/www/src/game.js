@@ -21,6 +21,9 @@ function initialize() {
     // プレイヤー操作を準備する
     Player.initialize();
 
+    // スコア表示を準備する
+    Score.initialize();
+
     // シーンを初期状態にセットする
     gameState = 'start';
     // フレームを初期化する
@@ -53,11 +56,15 @@ function gameLoop() {
             if (eraseInfo) {
                 gameState = 'erasingPuyo';
                 comboCount++;
+                // スコアを加算する
+                Score.addComboScore(comboCount, eraseInfo.piece, eraseInfo.color);
                 Stage.hideZenkeshi();
             } else {
                 if (Stage.puyoCount === 0 && comboCount > 0) {
                     // 全部消えたので、全消しを表示する
                     Stage.showZenkeshi();
+                    // ボーナススコアを加算する
+                    Score.addScore(Config.zenkeshiBonus);
                 }
                 comboCount = 0;
                 gameState = 'createPlayerPuyo';

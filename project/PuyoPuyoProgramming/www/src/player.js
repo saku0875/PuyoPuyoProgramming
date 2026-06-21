@@ -135,6 +135,10 @@ class Player {
                 // ブロックの境を超えたので、自分の位置を1つ下にずらす
                 y += 1;
                 Player.playerPuyoStatus.y = y;
+                // 下キーが押されていた場合、スコアを加算する
+                if (Player.keyStatus.down) {
+                    Score.addScore(1);
+                }
                 // 下にブロックがないか再度チェックする
                 if (!Stage.getPuyoInfo(x, y+1) && !Stage.getPuyoInfo(x + dx, y + dy + 1)) {
                     // 境を超えたが、下にぷよはなかった。接地していないよう設定して、自由落下を続ける
