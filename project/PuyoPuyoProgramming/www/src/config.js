@@ -29,4 +29,5 @@ class Config {
     static zenkeshiDuration = 150;
     static playerFallingSpeed = 0.9;
     static playerLockDelayFrames = 20;
+    static playerDownSpeed = 10;
 }

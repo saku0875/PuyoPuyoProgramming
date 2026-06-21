@@ -5,6 +5,62 @@ class Player {
     static centerPuyoElement = null;
     static rotatingPuyoElement = null;
     static groundedFrame = 0;
+    static keyStatus = null;
+
+    static initialize() {
+        // キーボードの入力を確認する
+        Player.keyStatus = {
+            right: false,
+            left: false,
+            up: false,
+            down: false
+        };
+        // ブラウザのキーボードの入力を取得するイベントリスナを登録する
+        document.addEventListener('keydown', (event) => {
+            // キーボードが押された場合
+            switch (event.key) {
+                case "ArrowLeft": // 左向きキー
+                    Player.keyStatus.left = true;
+                    event.preventDefault();
+                    return;
+                case "ArrowUp":
+                    Player.keyStatus.right = true;
+                    event.preventDefault();
+                    return;
+                case "ArrowRight":
+                    Player.keyStatus.right = true;
+                    event.preventDefault();
+                    return;
+                case "ArrowDown":
+                    Player.keyStatus.down = true;
+                    event.preventDefault();
+                    return;
+            }
+        });
+
+                document.addEventListener('keyup', (event) => {
+            // キーボードが離された場合
+            switch (event.key) {
+                case "ArrowLeft": // 左向きキー
+                    Player.keyStatus.left = false;
+                    event.preventDefault();
+                    return;
+                case "ArrowUp":
+                    Player.keyStatus.right = false;
+                    event.preventDefault();
+                    return;
+                case "ArrowRight":
+                    Player.keyStatus.right = false;
+                    event.preventDefault();
+                    return;
+                case "ArrowDown":
+                    Player.keyStatus.down = false;
+                    event.preventDefault();
+                    return;
+            }
+        });
+
+    }
 
     // プレイヤーが操作するぷよを作る
     static createPlayerPuyo() {
@@ -57,13 +113,16 @@ class Player {
     }
 
     // プレイヤーの操作ぷよを落下させる
-    static dropPlayerPuyo() {
+    static dropPlayerPuyo(isPressingDown) {
         let{ x, y, dx, dy } = Player.playerPuyoStatus;
 
         //現状のプレイヤーの操作ぷよの下にぷよがあるか確認する
         if (!Stage.getPuyoInfo(x, y+1) && !Stage.getPuyoInfo(x + dx, y + dy + 1)) {
             // 中心ぷよ・回転するぷよ両方の下にぷよがないので、自由落下してよい
             Player.playerPuyoStatus.top += Config.playerFallingSpeed;
+            if (isPressingDown) {
+                Player.playerPuyoStatus.top += Config.playerDownSpeed;
+            }
             // 自由落下した際、マス目の境界を超えていないか確認する
             if (Math.floor(Player.playerPuyoStatus.top / Config.puyoImageHeight) != y) {
                 // ブロックの境を超えたので、自分の位置を1つ下にずらす
@@ -107,7 +166,7 @@ class Player {
     // イベントループで現在の状況を更新する
     static update() {
         // まずプレイヤーの操作ぷよを落下させる
-        if (Player.dropPlayerPuyo()) {
+        if (Player.dropPlayerPuyo(Player.keyStatus.down)) {
             // 接地が終ったら、ぷよを固定する
             return "fix";
         }
