@@ -82,14 +82,21 @@ function gameLoop() {
                 break;
             case 'playing':
                 // プレイヤーが操作する状態
-                const nextAction = Player.update();
-                gameState = nextAction; // 'playing' 'fix' のどれかが返ってくる
+                const nextAction = Player.update(frame);
+                gameState = nextAction; // 'playing' 'fix' 'moving' のどれかが返ってくる
                 break;
             case 'fix':
                 // 現在の位置でぷよを固定する状態
                 Player.fixPlayerPuyo();
                 // 固定が完了したら、自由落下できるぷよがあるかどうかを確認する
                 gameState = 'checkFallingPuyo';
+                break;
+            case 'moving':
+                // プレイヤーの操作ぷよが左右に移動するアニメーション状態
+                if (Player.movePlayerPuyo(frame)) {
+                    // 移動が終ったので操作可能にする
+                    gameState = 'playing';
+                }
                 break;
     }
     frame++;
