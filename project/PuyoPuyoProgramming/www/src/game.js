@@ -18,6 +18,9 @@ function initialize() {
     // ステージを準備する
     Stage.initialize();
 
+    // プレイヤー操作を準備する
+    Player.initialize();
+
     // シーンを初期状態にセットする
     gameState = 'start';
     // フレームを初期化する
