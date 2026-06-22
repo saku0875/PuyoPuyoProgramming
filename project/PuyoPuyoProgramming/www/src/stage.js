@@ -312,7 +312,7 @@ class Stage {
                     var element = info.puyoInfo.element;
                     element.style.display = 'none';
                 }
-                return false;
+                return true;
             } else if (ratio >= 0.25) {
                 for (const info of Stage.erasingInfoList) {
                     var element = info.puyoInfo.element;
