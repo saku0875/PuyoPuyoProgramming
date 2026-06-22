@@ -72,7 +72,7 @@ class Player {
             // 最初にタッチされた位置を覚えておく
             const touch = event.touches[0];
             pageX = touch.pageX;
-            oageY = touch.pageY;
+            pageY = touch.pageY;
         });
         // タッチ入力しながら指を動かした
         document.addEventListener("touchmove", (event) => {
