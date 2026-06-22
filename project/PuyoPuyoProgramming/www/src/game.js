@@ -111,6 +111,13 @@ function gameLoop() {
                     gameState = 'playing';
                 }
                 break;
+            case 'gameOver':
+                GameImage.prepareBatankyuAnimation(frame);
+                gameState = 'batankyu';
+                break;
+            case 'batankyu':
+                GameImage.updateBatankyu(frame);
+                break;
     }
     frame++;
     setTimeout(gameLoop, 1000 / 60); // 1/60秒後にもう一度呼び出す
