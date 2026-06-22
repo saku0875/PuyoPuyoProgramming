@@ -78,7 +78,7 @@ class Player {
         document.addEventListener("touchmove", (event) => {
         let { left, right, up, down } = Player.keyStatus;
         // もしすでにどれかのキーが押されていたら、そのままにしておく
-        if (left || right || tp || down) {
+        if (left || right || up || down) {
             return;
         }
         // まだキー入力がされていなければ、スワイプを検知する
