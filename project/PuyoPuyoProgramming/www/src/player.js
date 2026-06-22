@@ -65,7 +65,55 @@ class Player {
                     return;
             }
         });
-
+        // タッチ入力でキー入力をエミュレートする
+        let pageX = 0, pageY = 0;
+        // タッチ入力が始まった
+        document.addEventListener("touchstart", (event) => {
+            // 最初にタッチされた位置を覚えておく
+            const touch = event.touches[0];
+            pageX = touch.pageX;
+            oageY = touch.pageY;
+        });
+        // タッチ入力しながら指を動かした
+        document.addEventListener("touchmove", (event) => {
+        let { left, right, up, down } = Player.keyStatus;
+        // もしすでにどれかのキーが押されていたら、そのままにしておく
+        if (left || right || tp || down) {
+            return;
+        }
+        // まだキー入力がされていなければ、スワイプを検知する
+        const touch = event.touches[0];
+        const dx = touch.pageX - pageX;
+        const dy = touch.pageY - pageY;
+        if (dx ** 2 + dy ** 2 < 5 ** 2) {
+            // 移動量が小さすぎる場合、まだ入力を受け付けない
+            return;
+        }
+        // どの方向にスワイプされたかを判定する
+        if (Math.ads(dx) > Math.abs(dy)) {
+            if (dx > 0) {
+                right = true;
+            } else {
+                left = true;
+            }
+        } else {
+            if (dy > 0) {
+                down = true;
+            } else {
+                up = true;
+            }
+        }
+        Player.keyStatus = { left, right, up, down };
+        });
+        // 指を話した
+        document.addEventListener("touchend", (event) => {
+            Player.keyStatus = {
+                left: false,
+                right: false,
+                up: false,
+                down: false
+            };
+        });
     }
 
     // プレイヤーが操作するぷよを作る
