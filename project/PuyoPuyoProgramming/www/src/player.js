@@ -90,7 +90,7 @@ class Player {
             return;
         }
         // どの方向にスワイプされたかを判定する
-        if (Math.ads(dx) > Math.abs(dy)) {
+        if (Math.abs(dx) > Math.abs(dy)) {
             if (dx > 0) {
                 right = true;
             } else {
