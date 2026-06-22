@@ -1,6 +1,8 @@
 class GameImage {
     static puyoImageList = null; // puyoImageList = 読み込んだぷよ画像の要素たちを保管する配列
     static digitImageList = null;
+    static batankyuImage = null;
+    static gameOverFrame = 0;
 
     static initialize() {
         // ぷよ画像を準備する
@@ -26,6 +28,10 @@ class GameImage {
 
             GameImage.digitImageList[i] = image;
         }
+           // ばたんきゅ～画像を準備する
+        GameImage.batankyuImage = document.getElementById("batankyu");
+        GameImage.batankyuImage.width = Config.puyoImageWidth * Config.stageCols;
+        GameImage.batankyuImage.style.position = 'absolute';
     }
 
     // ぷよ画像を複製して返す
@@ -43,5 +49,28 @@ class GameImage {
     // 数字画像の横幅を返す
     static getDigitImageWidth() {
         return GameImage.digitImageList[0].width;
+    }
+
+    // ばたんきゅ～の準備をする
+    static prepareBatankyuAnimation(frame) {
+        // ゲームオーバー時のフレーム数を記録しておく
+        GameImage.gameOverFrame = frame;
+        // ばたんきゅ～画像を、ステージ要素の下に再配置する
+        Stage.stageElement.appendChild(GameImage.batankyuImage);
+        // ばたんきゅ～の位置をセットする
+        GameImage.updateBatankyu(frame);
+    }
+
+    // ばたんきゅ～のアニメーションをする
+    static updateBatankyu(frame) {
+        // アニメーションの進行割合を計算する
+        const ratio = (frame - GameImage.gameOverFrame) / Config.batankyuAnimationFrames;
+        // 三角関数を使って、なめらかなアニメーションに見えるような位置を計算する
+        const height = Config.puyoImageHeight * Config.stageRows;
+        const x = Math.sin(ratio * Math.PI * 2 * 5) * Config.puyoImageWidth;
+        const y = -Math.cos(ratio * Math.PI * 2) * height / 4 + height / 2;
+        // ばたんきゅ～画像に計算した位置を指定する
+        GameImage.batankyuImage.style.left = x + 'px';
+        GameImage.batankyuImage.style.top = y + 'px';
     }
 }
